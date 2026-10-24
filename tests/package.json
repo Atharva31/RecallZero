@@ -1,0 +1,9 @@
+{
+  "name": "recallzero-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test unit/",
+    "test:unit": "node --test unit/"
+  }
+}
