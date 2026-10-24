@@ -74,8 +74,25 @@ def parse_intent_offline(text: str) -> Intent:
     return Intent(root_lot=m.group(1).upper() if m else None, reason=reason)
 
 
+def _normalize(text: str) -> str:
+    """ASI:One may relay the same request with different case, spacing or end punctuation."""
+    return " ".join(text.lower().split()).rstrip(".!? ")
+
+
+def intent_key(text: str) -> str:
+    return _key("intent", _normalize(text))
+
+
+def report_key(facts: dict) -> str:
+    return _key("report", {k: v for k, v in facts.items() if k != "generatedAt"})
+
+
+def cached(key: str) -> bool:
+    return _cache_get(key) is not None
+
+
 async def extract_intent(text: str) -> Intent:
-    key = _key("intent", text.strip())
+    key = intent_key(text)
     if (hit := _cache_get(key)) is not None:
         return Intent(**hit)
     if _client is None:
@@ -143,7 +160,7 @@ def report_offline(f: dict) -> str:
 
 async def draft_report(facts: dict) -> str:
     stable = {k: v for k, v in facts.items() if k != "generatedAt"}
-    key = _key("report", stable)
+    key = report_key(facts)
     if (hit := _cache_get(key)) is not None:
         return hit
     if _client is None:
