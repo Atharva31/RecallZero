@@ -1,0 +1,10 @@
+[
+  { "shipmentId": "SHP-001", "fromLocation": "FACTORY-01",   "toLocation": "WAREHOUSE-02", "status": "RECEIVED" },
+  { "shipmentId": "SHP-002", "fromLocation": "FACTORY-01",   "toLocation": "WAREHOUSE-03", "status": "RECEIVED" },
+  { "shipmentId": "SHP-003", "fromLocation": "WAREHOUSE-02", "toLocation": "STORE-A",      "status": "RECEIVED" },
+  { "shipmentId": "SHP-004", "fromLocation": "WAREHOUSE-02", "toLocation": "STORE-B",      "status": "RECEIVED" },
+  { "shipmentId": "SHP-005", "fromLocation": "WAREHOUSE-02", "toLocation": "STORE-C",      "status": "RECEIVED" },
+  { "shipmentId": "SHP-006", "fromLocation": "WAREHOUSE-02", "toLocation": "STORE-D",      "status": "RECEIVED" },
+  { "shipmentId": "SHP-007", "fromLocation": "WAREHOUSE-03", "toLocation": "STORE-E",      "status": "RECEIVED" },
+  { "shipmentId": "SHP-008", "fromLocation": "WAREHOUSE-03", "toLocation": "STORE-F",      "status": "RECEIVED" }
+]

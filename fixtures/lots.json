@@ -1,0 +1,9 @@
+[
+  { "lotId": "PEANUT-009", "sku": null,      "kind": "INGREDIENT", "producedAt": "2026-09-28T08:00:00Z", "quantity": 500 },
+  { "lotId": "OAT-015",    "sku": null,      "kind": "INGREDIENT", "producedAt": "2026-09-27T08:00:00Z", "quantity": 150 },
+  { "lotId": "OAT-016",    "sku": null,      "kind": "INGREDIENT", "producedAt": "2026-09-27T09:00:00Z", "quantity": 100 },
+  { "lotId": "OAT-017",    "sku": null,      "kind": "INGREDIENT", "producedAt": "2026-09-27T10:00:00Z", "quantity": 150 },
+  { "lotId": "BAR-100",    "sku": "BAR-100", "kind": "FINISHED",   "producedAt": "2026-10-01T12:00:00Z", "quantity": 600 },
+  { "lotId": "BAR-101",    "sku": "BAR-101", "kind": "FINISHED",   "producedAt": "2026-10-01T14:00:00Z", "quantity": 300 },
+  { "lotId": "BAR-102",    "sku": "BAR-102", "kind": "FINISHED",   "producedAt": "2026-10-01T16:00:00Z", "quantity": 200 }
+]

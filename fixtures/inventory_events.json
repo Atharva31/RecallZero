@@ -1,0 +1,137 @@
+[
+  {
+    "id": 1,
+    "lotId": "BAR-100",
+    "locationId": "WAREHOUSE-02",
+    "type": "RECEIVED",
+    "qty": 600,
+    "at": "2026-10-02T09:00:00Z",
+    "actor": "ORG-DIST"
+  },
+  {
+    "id": 2,
+    "lotId": "BAR-101",
+    "locationId": "WAREHOUSE-03",
+    "type": "RECEIVED",
+    "qty": 300,
+    "at": "2026-10-02T09:00:00Z",
+    "actor": "ORG-DIST"
+  },
+  {
+    "id": 3,
+    "lotId": "BAR-102",
+    "locationId": "WAREHOUSE-03",
+    "type": "RECEIVED",
+    "qty": 200,
+    "at": "2026-10-02T09:00:00Z",
+    "actor": "ORG-DIST"
+  },
+  {
+    "id": 4,
+    "lotId": "BAR-100",
+    "locationId": "STORE-A",
+    "type": "RECEIVED",
+    "qty": 200,
+    "at": "2026-10-03T10:00:00Z",
+    "actor": "ORG-STORE-A"
+  },
+  {
+    "id": 5,
+    "lotId": "BAR-100",
+    "locationId": "STORE-A",
+    "type": "SOLD",
+    "qty": 80,
+    "at": "2026-10-15T18:00:00Z",
+    "actor": "ORG-STORE-A"
+  },
+  {
+    "id": 6,
+    "lotId": "BAR-100",
+    "locationId": "STORE-B",
+    "type": "RECEIVED",
+    "qty": 150,
+    "at": "2026-10-03T10:00:00Z",
+    "actor": "ORG-STORE-B"
+  },
+  {
+    "id": 7,
+    "lotId": "BAR-100",
+    "locationId": "STORE-B",
+    "type": "SOLD",
+    "qty": 40,
+    "at": "2026-10-15T18:00:00Z",
+    "actor": "ORG-STORE-B"
+  },
+  {
+    "id": 8,
+    "lotId": "BAR-100",
+    "locationId": "STORE-C",
+    "type": "RECEIVED",
+    "qty": 120,
+    "at": "2026-10-03T10:00:00Z",
+    "actor": "ORG-STORE-C"
+  },
+  {
+    "id": 9,
+    "lotId": "BAR-100",
+    "locationId": "STORE-C",
+    "type": "SOLD",
+    "qty": 30,
+    "at": "2026-10-15T18:00:00Z",
+    "actor": "ORG-STORE-C"
+  },
+  {
+    "id": 10,
+    "lotId": "BAR-100",
+    "locationId": "STORE-D",
+    "type": "RECEIVED",
+    "qty": 120,
+    "at": "2026-10-03T10:00:00Z",
+    "actor": "ORG-STORE-D"
+  },
+  {
+    "id": 11,
+    "lotId": "BAR-100",
+    "locationId": "STORE-D",
+    "type": "SOLD",
+    "qty": 85,
+    "at": "2026-10-15T18:00:00Z",
+    "actor": "ORG-STORE-D"
+  },
+  {
+    "id": 12,
+    "lotId": "BAR-101",
+    "locationId": "STORE-E",
+    "type": "RECEIVED",
+    "qty": 300,
+    "at": "2026-10-04T10:00:00Z",
+    "actor": "ORG-STORE-E"
+  },
+  {
+    "id": 13,
+    "lotId": "BAR-101",
+    "locationId": "STORE-E",
+    "type": "SOLD",
+    "qty": 100,
+    "at": "2026-10-15T18:00:00Z",
+    "actor": "ORG-STORE-E"
+  },
+  {
+    "id": 14,
+    "lotId": "BAR-102",
+    "locationId": "STORE-F",
+    "type": "RECEIVED",
+    "qty": 200,
+    "at": "2026-10-04T10:00:00Z",
+    "actor": "ORG-STORE-F"
+  },
+  {
+    "id": 15,
+    "lotId": "BAR-102",
+    "locationId": "STORE-F",
+    "type": "SOLD",
+    "qty": 50,
+    "at": "2026-10-15T18:00:00Z",
+    "actor": "ORG-STORE-F"
+  }
+]

@@ -1,0 +1,18 @@
+node_modules/
+.next/
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+
+# Python
+agents/.venv/
+__pycache__/
+*.pyc
+
+# SpacetimeDB build output
+spacetimedb/dist/
+spacetimedb/target/
+
+# Gateway stored org tokens
+gateway/.tokens/

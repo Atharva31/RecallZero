@@ -1,0 +1,74 @@
+[
+  {
+    "lotId": "BAR-102",
+    "locationId": "WAREHOUSE-03",
+    "available": 0,
+    "quarantined": 0,
+    "sold": 0,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-101",
+    "locationId": "WAREHOUSE-03",
+    "available": 0,
+    "quarantined": 0,
+    "sold": 0,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-100",
+    "locationId": "WAREHOUSE-02",
+    "available": 0,
+    "quarantined": 0,
+    "sold": 0,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-100",
+    "locationId": "STORE-A",
+    "available": 120,
+    "quarantined": 0,
+    "sold": 80,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-100",
+    "locationId": "STORE-B",
+    "available": 110,
+    "quarantined": 0,
+    "sold": 40,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-100",
+    "locationId": "STORE-C",
+    "available": 90,
+    "quarantined": 0,
+    "sold": 30,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-100",
+    "locationId": "STORE-D",
+    "available": 20,
+    "quarantined": 0,
+    "sold": 85,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-101",
+    "locationId": "STORE-E",
+    "available": 200,
+    "quarantined": 0,
+    "sold": 100,
+    "damaged": 0
+  },
+  {
+    "lotId": "BAR-102",
+    "locationId": "STORE-F",
+    "available": 150,
+    "quarantined": 0,
+    "sold": 50,
+    "damaged": 0
+  }
+]

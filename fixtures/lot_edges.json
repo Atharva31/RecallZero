@@ -1,0 +1,7 @@
+[
+  { "parentLotId": "PEANUT-009", "childLotId": "BAR-100", "quantityUsed": 300 },
+  { "parentLotId": "PEANUT-009", "childLotId": "BAR-101", "quantityUsed": 200 },
+  { "parentLotId": "OAT-015",    "childLotId": "BAR-100", "quantityUsed": 150 },
+  { "parentLotId": "OAT-016",    "childLotId": "BAR-101", "quantityUsed": 100 },
+  { "parentLotId": "OAT-017",    "childLotId": "BAR-102", "quantityUsed": 150 }
+]

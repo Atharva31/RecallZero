@@ -1,0 +1,11 @@
+[
+  { "id": "ORG-ACME", "name": "Acme Snack Co.", "type": "MANUFACTURER", "integrationLevel": "CONNECTED" },
+  { "id": "ORG-DIST", "name": "Bay Area Distribution", "type": "DISTRIBUTOR", "integrationLevel": "MANUAL" },
+  { "id": "ORG-STORE-A", "name": "Store A", "type": "RETAILER", "integrationLevel": "CONNECTED" },
+  { "id": "ORG-STORE-B", "name": "Store B", "type": "RETAILER", "integrationLevel": "CONNECTED" },
+  { "id": "ORG-STORE-C", "name": "Store C", "type": "RETAILER", "integrationLevel": "MANUAL" },
+  { "id": "ORG-STORE-D", "name": "Store D", "type": "RETAILER", "integrationLevel": "MANUAL" },
+  { "id": "ORG-STORE-E", "name": "Store E", "type": "RETAILER", "integrationLevel": "MANUAL" },
+  { "id": "ORG-STORE-F", "name": "Store F", "type": "RETAILER", "integrationLevel": "MANUAL" },
+  { "id": "ORG-FDA", "name": "Food Safety Regulator", "type": "REGULATOR", "integrationLevel": "MANUAL" }
+]

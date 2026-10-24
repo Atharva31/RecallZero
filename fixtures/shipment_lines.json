@@ -1,0 +1,11 @@
+[
+  { "shipmentId": "SHP-001", "lotId": "BAR-100", "qtyDispatched": 600, "qtyReceived": 600, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-002", "lotId": "BAR-101", "qtyDispatched": 300, "qtyReceived": 300, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-002", "lotId": "BAR-102", "qtyDispatched": 200, "qtyReceived": 200, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-003", "lotId": "BAR-100", "qtyDispatched": 200, "qtyReceived": 200, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-004", "lotId": "BAR-100", "qtyDispatched": 150, "qtyReceived": 150, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-005", "lotId": "BAR-100", "qtyDispatched": 120, "qtyReceived": 120, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-006", "lotId": "BAR-100", "qtyDispatched": 130, "qtyReceived": 120, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-007", "lotId": "BAR-101", "qtyDispatched": 300, "qtyReceived": 300, "qtyDamaged": 0 },
+  { "shipmentId": "SHP-008", "lotId": "BAR-102", "qtyDispatched": 200, "qtyReceived": 200, "qtyDamaged": 0 }
+]

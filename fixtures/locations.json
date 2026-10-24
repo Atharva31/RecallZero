@@ -1,0 +1,11 @@
+[
+  { "id": "FACTORY-01",   "orgId": "ORG-ACME",    "name": "Acme Factory 01",  "type": "FACTORY",   "x": 250, "y": 300 },
+  { "id": "WAREHOUSE-02", "orgId": "ORG-DIST",    "name": "Warehouse 02",     "type": "WAREHOUSE", "x": 500, "y": 180 },
+  { "id": "WAREHOUSE-03", "orgId": "ORG-DIST",    "name": "Warehouse 03",     "type": "WAREHOUSE", "x": 500, "y": 460 },
+  { "id": "STORE-A",      "orgId": "ORG-STORE-A", "name": "Store A",          "type": "STORE",     "x": 780, "y": 40 },
+  { "id": "STORE-B",      "orgId": "ORG-STORE-B", "name": "Store B",          "type": "STORE",     "x": 780, "y": 130 },
+  { "id": "STORE-C",      "orgId": "ORG-STORE-C", "name": "Store C",          "type": "STORE",     "x": 780, "y": 220 },
+  { "id": "STORE-D",      "orgId": "ORG-STORE-D", "name": "Store D",          "type": "STORE",     "x": 780, "y": 310 },
+  { "id": "STORE-E",      "orgId": "ORG-STORE-E", "name": "Store E",          "type": "STORE",     "x": 780, "y": 420 },
+  { "id": "STORE-F",      "orgId": "ORG-STORE-F", "name": "Store F",          "type": "STORE",     "x": 780, "y": 510 }
+]

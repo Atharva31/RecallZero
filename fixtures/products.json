@@ -1,0 +1,5 @@
+[
+  { "sku": "BAR-100", "gtin": "00850001000100", "name": "Peanut Crunch Bar" },
+  { "sku": "BAR-101", "gtin": "00850001000101", "name": "Trail Mix Bar" },
+  { "sku": "BAR-102", "gtin": "00850001000102", "name": "Oat Honey Bar" }
+]

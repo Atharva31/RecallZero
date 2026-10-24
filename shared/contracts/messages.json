@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recallzero.dev/contracts/messages.json",
+  "title": "RecallZero agent messages",
+  "description": "FROZEN CONTRACT (PLAN.md section 9). Mirrored by agents/shared/messages.py. Only Atharva edits.",
+  "$defs": {
+    "QuarantineRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "request_id", "recall_id", "task_id", "store_id", "lot_ids", "reason"],
+      "properties": {
+        "type": { "const": "QUARANTINE_REQUEST" },
+        "request_id": { "type": "string", "pattern": "^REQ-[0-9]+$", "examples": ["REQ-204"] },
+        "recall_id": { "type": "string", "examples": ["REC-001"] },
+        "task_id": { "type": "string", "examples": ["T-7"] },
+        "store_id": { "type": "string", "examples": ["STORE-A"] },
+        "lot_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1, "examples": [["BAR-100"]] },
+        "reason": { "type": "string", "examples": ["Authorized recall"] }
+      }
+    },
+    "QuarantineResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "request_id", "task_id", "status", "quarantined_units"],
+      "properties": {
+        "type": { "const": "QUARANTINE_RESULT" },
+        "request_id": { "type": "string" },
+        "task_id": { "type": "string" },
+        "status": {
+          "description": "Affected-location status read back from the database after commit, never the agent's own claim.",
+          "enum": ["AWAITING_ACKNOWLEDGMENT", "VERIFIED_CONTAINED", "PARTIALLY_CONTAINED", "INVENTORY_UNKNOWN", "ACTION_FAILED", "RECONCILIATION_EXCEPTION"]
+        },
+        "quarantined_units": { "type": "integer", "minimum": 0 },
+        "error": { "type": ["string", "null"], "description": "Gateway error message when the reducer rejected the action." }
+      }
+    }
+  },
+  "oneOf": [{ "$ref": "#/$defs/QuarantineRequest" }, { "$ref": "#/$defs/QuarantineResult" }]
+}
