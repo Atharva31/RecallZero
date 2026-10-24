@@ -1,0 +1,13 @@
+{
+  "name": "recallzero-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "seed": "node seed.ts",
+    "reset": "node reset.ts",
+    "reset:hard": "node reset.ts --hard",
+    "demo": "node demo-scenario.ts --pace 2500",
+    "demo:fast": "node demo-scenario.ts",
+    "demo:agents": "node demo-scenario.ts --agents --pace 2500"
+  }
+}

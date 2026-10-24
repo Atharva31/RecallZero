@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test unit/",
-    "test:unit": "node --test unit/"
+    "test:unit": "node --test unit/",
+    "test:e2e": "node --test --test-concurrency=1 e2e/",
+    "test:e2e:3x": "E2E_RUNS=3 node --test --test-concurrency=1 e2e/"
   }
 }
