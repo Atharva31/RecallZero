@@ -6,6 +6,7 @@
     "dev": "npm run dev:coordinator",
     "dev:coordinator": ".venv/bin/python -m coordinator.agent",
     "dev:store-a": "STORE_ID=STORE-A .venv/bin/python -m retailer.agent",
-    "dev:store-b": "STORE_ID=STORE-B .venv/bin/python -m retailer.agent"
+    "dev:store-b": "STORE_ID=STORE-B .venv/bin/python -m retailer.agent",
+    "chat": ".venv/bin/python -m scripts.chat"
   }
 }
