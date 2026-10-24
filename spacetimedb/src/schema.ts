@@ -199,6 +199,15 @@ const config = table(
   }
 );
 
+/** Private repeating timer that drives check_task_timeouts (TIMEOUT_CHECK_INTERVAL_MS). */
+export const timeoutTimer = table(
+  { name: 'timeout_timer' },
+  {
+    scheduledId: t.u64().primaryKey().autoInc(),
+    scheduledAt: t.scheduleAt(),
+  }
+);
+
 const spacetimedb = schema({
   organizations,
   locations,
@@ -216,6 +225,7 @@ const spacetimedb = schema({
   taskAttempts,
   auditEvents,
   config,
+  timeoutTimer,
 });
 
 export default spacetimedb;

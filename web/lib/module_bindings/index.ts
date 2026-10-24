@@ -34,7 +34,19 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import AssignContainmentTasksReducer from "./assign_containment_tasks_reducer";
+import AuthorizeRecallReducer from "./authorize_recall_reducer";
+import ClaimOrgIdentityReducer from "./claim_org_identity_reducer";
+import ClaimTaskReducer from "./claim_task_reducer";
+import CloseRecallReducer from "./close_recall_reducer";
 import PingReducer from "./ping_reducer";
+import QuarantineLotReducer from "./quarantine_lot_reducer";
+import RecordDiscrepancyReducer from "./record_discrepancy_reducer";
+import RecordSaleReducer from "./record_sale_reducer";
+import ReportRecallSignalReducer from "./report_recall_signal_reducer";
+import SeedFixturesReducer from "./seed_fixtures_reducer";
+import SetDispositionReducer from "./set_disposition_reducer";
+import TraceRecallReducer from "./trace_recall_reducer";
 
 // Import all procedure arg schemas
 
@@ -272,7 +284,19 @@ const tablesSchema = __schema({
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("assign_containment_tasks", AssignContainmentTasksReducer),
+  __reducerSchema("authorize_recall", AuthorizeRecallReducer),
+  __reducerSchema("claim_org_identity", ClaimOrgIdentityReducer),
+  __reducerSchema("claim_task", ClaimTaskReducer),
+  __reducerSchema("close_recall", CloseRecallReducer),
   __reducerSchema("ping", PingReducer),
+  __reducerSchema("quarantine_lot", QuarantineLotReducer),
+  __reducerSchema("record_discrepancy", RecordDiscrepancyReducer),
+  __reducerSchema("record_sale", RecordSaleReducer),
+  __reducerSchema("report_recall_signal", ReportRecallSignalReducer),
+  __reducerSchema("seed_fixtures", SeedFixturesReducer),
+  __reducerSchema("set_disposition", SetDispositionReducer),
+  __reducerSchema("trace_recall", TraceRecallReducer),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

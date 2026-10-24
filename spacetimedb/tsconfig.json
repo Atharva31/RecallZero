@@ -9,6 +9,7 @@
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "jsx": "react-jsx",
 
     /* The following options are required by SpacetimeDB
@@ -20,5 +21,5 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["./src/**/*", "../shared/contracts/**/*"]
+  "include": ["./src/**/*", "../shared/contracts/**/*", "../fixtures/*.json"]
 }

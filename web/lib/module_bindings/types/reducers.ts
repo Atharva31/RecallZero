@@ -6,7 +6,31 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
+import AssignContainmentTasksReducer from "../assign_containment_tasks_reducer";
+import AuthorizeRecallReducer from "../authorize_recall_reducer";
+import ClaimOrgIdentityReducer from "../claim_org_identity_reducer";
+import ClaimTaskReducer from "../claim_task_reducer";
+import CloseRecallReducer from "../close_recall_reducer";
 import PingReducer from "../ping_reducer";
+import QuarantineLotReducer from "../quarantine_lot_reducer";
+import RecordDiscrepancyReducer from "../record_discrepancy_reducer";
+import RecordSaleReducer from "../record_sale_reducer";
+import ReportRecallSignalReducer from "../report_recall_signal_reducer";
+import SeedFixturesReducer from "../seed_fixtures_reducer";
+import SetDispositionReducer from "../set_disposition_reducer";
+import TraceRecallReducer from "../trace_recall_reducer";
 
+export type AssignContainmentTasksParams = __Infer<typeof AssignContainmentTasksReducer>;
+export type AuthorizeRecallParams = __Infer<typeof AuthorizeRecallReducer>;
+export type ClaimOrgIdentityParams = __Infer<typeof ClaimOrgIdentityReducer>;
+export type ClaimTaskParams = __Infer<typeof ClaimTaskReducer>;
+export type CloseRecallParams = __Infer<typeof CloseRecallReducer>;
 export type PingParams = __Infer<typeof PingReducer>;
+export type QuarantineLotParams = __Infer<typeof QuarantineLotReducer>;
+export type RecordDiscrepancyParams = __Infer<typeof RecordDiscrepancyReducer>;
+export type RecordSaleParams = __Infer<typeof RecordSaleReducer>;
+export type ReportRecallSignalParams = __Infer<typeof ReportRecallSignalReducer>;
+export type SeedFixturesParams = __Infer<typeof SeedFixturesReducer>;
+export type SetDispositionParams = __Infer<typeof SetDispositionReducer>;
+export type TraceRecallParams = __Infer<typeof TraceRecallReducer>;
 

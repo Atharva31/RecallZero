@@ -164,3 +164,9 @@ export const TaskAttempts = __t.object("TaskAttempts", {
 });
 export type TaskAttempts = __Infer<typeof TaskAttempts>;
 
+export const TimeoutTimer = __t.object("TimeoutTimer", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+});
+export type TimeoutTimer = __Infer<typeof TimeoutTimer>;
+
