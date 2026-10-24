@@ -7,7 +7,8 @@ Flow for a chat message such as "Start an investigation for contaminated ingredi
 2. Gateway as ORG-ACME: report_recall_signal -> authorize -> trace -> assign.
 3. QuarantineRequest to each CONNECTED store's retailer agent (MANUAL stores use the store terminal).
 4. Poll GET /recalls/:id/status: re-dispatch tasks the timeout reducer moved to RETRY_PENDING,
-   and once settled, reply with a report drafted from GET /recalls/:id/report only.
+   tell the chat about timeouts, escalations and manual confirmations as they commit, and once
+   settled, reply with a report drafted from GET /recalls/:id/report only.
 
 Recalls started elsewhere (the command center's fallback button calls the gateway directly)
 are adopted on the next poll: any CONTAINING recall this agent has not seen gets its
@@ -17,6 +18,7 @@ CONNECTED stores dispatched, so the fallback runs the same agent flow without AS
 import itertools
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from uuid import uuid4
 
 from uagents import Agent, Context, Protocol
@@ -44,6 +46,9 @@ agent = Agent(
     mailbox=AGENT_MAILBOX,
     endpoint=None if AGENT_MAILBOX else [endpoint(COORDINATOR_PORT)],
     resolve=LocalFirstResolver(),
+    # Agentverse profile, published when the mailbox connects; ASI:One finds the agent by it.
+    description="Executes food recalls: traces a contaminated ingredient lot, quarantines stock at stores, reports what is verified.",
+    readme_path=str(Path(__file__).with_name("agentverse_readme.md")),
 )
 
 chat = Protocol(spec=chat_protocol_spec)
@@ -58,6 +63,7 @@ class ActiveRecall:
     chat_sender: str | None  # who to send progress and the final report to
     dispatched: dict[str, int] = field(default_factory=dict)  # task_id -> attempt number last dispatched
     requests: dict[str, str] = field(default_factory=dict)  # request_id -> task_id
+    announced: dict[str, tuple[str, int]] = field(default_factory=dict)  # task_id -> (state, attempts) last seen
 
 
 active: dict[str, ActiveRecall] = {}
@@ -79,13 +85,13 @@ async def say(ctx: Context, to: str | None, text: str, end: bool = False):
     await ctx.send(to, ChatMessage(timestamp=datetime.now(timezone.utc), msg_id=uuid4(), content=content))
 
 
-async def dispatch(ctx: Context, rec: ActiveRecall, task: dict):
-    """Send a QuarantineRequest for one CONNECTED task, once per lease attempt."""
+async def dispatch(ctx: Context, rec: ActiveRecall, task: dict) -> bool:
+    """Send a QuarantineRequest for one CONNECTED task, once per lease attempt. True if delivered."""
     store_id = task["locationId"]
     address = RETAILER_ADDRESSES.get(store_id)
     if not address:
         ctx.logger.warning(f"{task['taskId']}: {store_id} is CONNECTED but has no retailer agent configured")
-        return
+        return False
     request_id = f"REQ-{next(_request_ids)}"
     rec.dispatched[task["taskId"]] = task["attempts"]
     rec.requests[request_id] = task["taskId"]
@@ -103,6 +109,37 @@ async def dispatch(ctx: Context, rec: ActiveRecall, task: dict):
         f"QUARANTINE_REQUEST {request_id} -> {store_id} ({task['taskId']}, attempt {task['attempts']}): "
         f"{status.status.value}{'' if delivered else ' - ' + status.detail}"
     )
+    return delivered
+
+
+async def announce_progress(ctx: Context, rec: ActiveRecall, status: dict):
+    """Tell the chat what the reducers committed since the last poll: timeouts, escalations and
+    MANUAL stores confirming at the store terminal. CONNECTED verifications arrive as QuarantineResults."""
+    locs = {a["locationId"]: a for a in status["affectedLocations"]}
+    for t in status["tasks"]:
+        now = (t["state"], t["attempts"])
+        if rec.announced.get(t["taskId"]) == now:
+            continue
+        rec.announced[t["taskId"]] = now
+        store = t["locationId"]
+        if t["state"] == "RETRY_PENDING":
+            await say(
+                ctx,
+                rec.chat_sender,
+                f"{store}: no committed quarantine before the lease expired (attempt {t['attempts'] - 1}); retrying.",
+            )
+        elif t["state"] == "ESCALATED":
+            await say(
+                ctx,
+                rec.chat_sender,
+                f"{store}: escalated after {t['attempts']} attempts. Inventory there is INVENTORY_UNKNOWN, not assumed contained.",
+            )
+        elif t["state"] == "VERIFIED" and t["integrationLevel"] == "MANUAL" and store in locs:
+            loc = locs[store]
+            text = f"{store}: {loc['quarantinedUnits']} units quarantined at the store terminal, {loc['status']}"
+            if loc["unaccountedUnits"]:
+                text += f" ({loc['unaccountedUnits']} units still unaccounted)"
+            await say(ctx, rec.chat_sender, text + ".")
 
 
 async def start_recall(ctx: Context, sender: str | None, root_lot: str, reason: str) -> str:
@@ -119,16 +156,24 @@ async def start_recall(ctx: Context, sender: str | None, root_lot: str, reason: 
 
     connected = [t for t in assigned["tasks"] if t["integrationLevel"] == "CONNECTED"]
     manual = [t for t in assigned["tasks"] if t["integrationLevel"] == "MANUAL"]
-    for t in connected:
-        await dispatch(ctx, rec, t)
+    for t in assigned["tasks"]:
+        rec.announced[t["taskId"]] = (t["state"], t["attempts"])
+    delivered = {t["locationId"]: await dispatch(ctx, rec, t) for t in connected}
+    reached = [s for s, ok in delivered.items() if ok]
+    unreachable = [s for s, ok in delivered.items() if not ok]
 
     locs = traced["affectedLocations"]
     exceptions = [a for a in locs if a["status"] == "RECONCILIATION_EXCEPTION"]
     lines = [
         f"Recall {rid} authorized for {root_lot} ({reason}).",
         f"Trace: affected lots {', '.join(traced['affectedLots'])}; {len(locs)} affected locations.",
-        f"Quarantine requests sent to agents at {', '.join(t['locationId'] for t in connected) or 'no connected stores'}.",
+        f"Quarantine requests delivered to agents at {', '.join(reached) or 'no connected stores'}.",
     ]
+    if unreachable:
+        lines.append(
+            f"Agents at {', '.join(unreachable)} did not accept the request; their tasks will retry and then "
+            "escalate if no quarantine is committed."
+        )
     if manual:
         lines.append(f"Manual confirmation needed at {', '.join(t['locationId'] for t in manual)} (store terminal).")
     if exceptions:
@@ -204,6 +249,7 @@ async def adopt_new_recalls(ctx: Context):
         rec = ActiveRecall(recall_id=rid, reason=r["reason"], chat_sender=None)
         active[rid] = rec
         status = await gw.recall_status(rid)
+        rec.announced = {t["taskId"]: (t["state"], t["attempts"]) for t in status["tasks"]}
         pending = [
             t
             for t in status["tasks"]
@@ -231,6 +277,7 @@ async def poll(ctx: Context):
                 and rec.dispatched.get(t["taskId"], 0) < t["attempts"]
             ):
                 await dispatch(ctx, rec, t)
+        await announce_progress(ctx, rec, status)
         if status["settled"]:
             del active[rid]
             facts = await gw.report_facts(rid)
