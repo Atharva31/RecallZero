@@ -61,7 +61,12 @@ class ActiveRecall:
 
 
 active: dict[str, ActiveRecall] = {}
-seen: set[str] = set()  # recall ids started or adopted by this process; never adopted twice
+seen: set[str] = set()  # recall_key()s started or adopted by this process; never adopted twice
+
+
+def recall_key(recall: dict) -> str:
+    """seed_fixtures restarts recall ids at REC-001, so an id alone is not unique across resets."""
+    return f"{recall['recallId']}@{recall['createdAt']}"
 
 
 async def say(ctx: Context, to: str | None, text: str, end: bool = False):
@@ -107,7 +112,7 @@ async def start_recall(ctx: Context, sender: str | None, root_lot: str, reason: 
     # Register before the recall reaches CONTAINING so poll() never adopts it as a stranger.
     rec = ActiveRecall(recall_id=rid, reason=reason, chat_sender=sender)
     active[rid] = rec
-    seen.add(rid)
+    seen.add(recall_key(recall))
     await gw.authorize_recall(rid)
     traced = await gw.trace_recall(rid)
     assigned = await gw.assign_containment_tasks(rid)
@@ -192,9 +197,10 @@ async def adopt_new_recalls(ctx: Context):
         return
     for r in recalls:
         rid = r["recallId"]
-        if r["status"] != "CONTAINING" or rid in seen:
+        key = recall_key(r)
+        if r["status"] != "CONTAINING" or key in seen:
             continue
-        seen.add(rid)
+        seen.add(key)  # replaces any stale active[rid] left over from before a reset
         rec = ActiveRecall(recall_id=rid, reason=r["reason"], chat_sender=None)
         active[rid] = rec
         status = await gw.recall_status(rid)
