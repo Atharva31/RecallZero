@@ -37,6 +37,8 @@ curl -sSf https://install.spacetimedb.com | sh        # SpacetimeDB CLI 2.13 (th
 | Web | `cd web && npm run dev` | http://localhost:3001/command, http://localhost:3001/store/STORE-A (3000 is SpacetimeDB) |
 | Coordinator agent | `cd agents && npm run dev:coordinator` | port 8001, logs its address |
 | Retailer agents | `cd agents && npm run dev:store-a` / `npm run dev:store-b` | ports 8002 / 8003 |
+| Tests | `cd tests && npm test` / `npm run test:e2e` | unit (no stack) / section 12 against the real stack |
+| Scripts | `cd scripts && npm run reset` / `npm run demo` | see [scripts/README.md](scripts/README.md) |
 
 ## Real stack (SpacetimeDB behind everything)
 
@@ -46,7 +48,8 @@ spacetime start                                                    # terminal 1
 GATEWAY_MODE=spacetimedb npm --prefix gateway run dev              # terminal 2
 echo NEXT_PUBLIC_DATA_SOURCE=spacetimedb > web/.env.local && npm --prefix web run dev   # terminal 3
 (cd agents && npm run dev:coordinator)   # terminal 4; and dev:store-a / dev:store-b
-spacetime call recallzero seed_fixtures --server local             # reset between rehearsals
+npm --prefix scripts run reset                                     # reset between rehearsals (reseed + verify)
+npm --prefix scripts run demo                                      # section 12 flow, checked beat by beat
 ```
 
 Who writes what:
