@@ -3,7 +3,9 @@
 //
 // - Base URL: GATEWAY_URL (default http://localhost:4000).
 // - JSON in and out, camelCase fields (same as tables.ts).
-// - Caller selection: every request sends header `X-Org-Id: <org id>`. The gateway
+// - Caller selection: every request sends header `X-Org-Id: <org id>`.
+//   The web app also writes through the gateway (fallback button as ORG-ACME, POS and
+//   "Confirm quarantine" as the store's org); it only reads SpacetimeDB directly. The gateway
 //   holds one stored SpacetimeDB token per org and calls the reducer as that
 //   identity. Coordinator uses ORG-ACME (manufacturer compliance identity);
 //   retailer agents use ORG-STORE-A / ORG-STORE-B. Local demo only, no auth.
@@ -82,6 +84,8 @@ export interface ReportFacts {
 export const ENDPOINTS = {
   health: { method: 'GET', path: '/health' },
   getLot: { method: 'GET', path: '/lots/:lotId' },
+  /** Every recall, any status. The coordinator adopts CONTAINING recalls it did not start (web fallback button). */
+  listRecalls: { method: 'GET', path: '/recalls' },
   reportRecallSignal: { method: 'POST', path: '/recalls' },
   authorizeRecall: { method: 'POST', path: '/recalls/:recallId/authorize' },
   traceRecall: { method: 'POST', path: '/recalls/:recallId/trace' },
@@ -102,6 +106,8 @@ export const ENDPOINTS = {
 export type HealthResponse = Ok<{ spacetimedb: 'connected' | 'mock' | 'disconnected'; orgs: string[] }>;
 
 export type GetLotResponse = Ok<{ lot: Lot }>; // 404 NOT_FOUND if missing
+
+export type ListRecallsResponse = Ok<{ recalls: Recall[] }>;
 
 export interface ReportRecallSignalRequest {
   rootLotId: string;

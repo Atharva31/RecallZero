@@ -110,6 +110,8 @@ export const reportRecallSignal = spacetimedb.reducer(
     const org = requireRole(ctx, 'MANUFACTURER');
     if (!ctx.db.lots.lotId.find(rootLotId)) fail('NOT_FOUND', `Lot ${rootLotId} not found`);
     if (!reason.trim()) fail('INVALID_ARGUMENT', 'reason is required');
+    const open = [...ctx.db.recalls.iter()].find(r => r.rootLotId === rootLotId && r.status !== 'CLOSED');
+    if (open) fail('INVALID_STATE', `${open.recallId} is already open for ${rootLotId}`);
 
     const cfg = ctx.db.config.id.find(0)!;
     const recallId = `REC-${String(cfg.nextRecallNo).padStart(3, '0')}`;
@@ -164,7 +166,7 @@ export const traceRecall = spacetimedb.reducer({ recallId: t.string() }, (ctx, {
 
   const passThrough: string[] = [];
   const affected: string[] = [];
-  for (const locationId of trace.affectedLocationIds) {
+  for (const locationId of [...trace.affectedLocationIds].sort()) {
     const r = reconcile(ctx, locationId, trace.affectedLotIds);
     const isStore = locations.find(l => l.id === locationId)?.type === 'STORE';
     if (!isStore && r.onHandUnits === 0 && r.unaccountedUnits === 0) {
@@ -212,7 +214,11 @@ export const assignContainmentTasks = spacetimedb.reducer({ recallId: t.string()
   const cfg = ctx.db.config.id.find(0)!;
   let next = cfg.nextTaskNo;
   const assigned: string[] = [];
-  for (const a of ctx.db.affectedLocations.recallId.filter(recallId)) {
+  // Sorted so task ids are stable across reseeds (table iteration order is not): T-1 is Store A.
+  const rows = [...ctx.db.affectedLocations.recallId.filter(recallId)].sort((a, b) =>
+    a.locationId.localeCompare(b.locationId)
+  );
+  for (const a of rows) {
     const location = ctx.db.locations.id.find(a.locationId)!;
     const owner = ctx.db.organizations.id.find(location.orgId)!;
     const connected = owner.integrationLevel === 'CONNECTED';

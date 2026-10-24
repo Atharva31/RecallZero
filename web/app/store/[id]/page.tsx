@@ -16,6 +16,7 @@ export default function StorePage({ params }: { params: Promise<{ id: string }> 
   const { id } = use(params);
   const data = useData();
   const location = data.locations.find((l) => l.id === id);
+  if (!data.locations.length) return <main className="p-8 text-slate-500">Loading…</main>;
   if (!location) {
     return (
       <main className="p-8">

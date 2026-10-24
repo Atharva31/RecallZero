@@ -22,7 +22,8 @@ import type {
 } from '../../shared/contracts/tables.ts';
 import { TASK_LEASE_MS, TASK_MAX_RETRIES, TIMEOUT_CHECK_INTERVAL_MS } from '../../shared/contracts/tables.ts';
 import type { ErrorCode } from '../../shared/contracts/reducers.ts';
-import type { Coverage, RecallStatus, ReportFacts, TaskWithTarget } from '../../shared/contracts/gateway.ts';
+import type { RecallStatus, ReportFacts, TaskWithTarget } from '../../shared/contracts/gateway.ts';
+import { recallStatus, reportFacts, withTarget as targetOf } from './readModel.ts';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures');
 const load = <T>(name: string): T => JSON.parse(readFileSync(join(FIXTURES, `${name}.json`), 'utf8'));
@@ -75,30 +76,7 @@ export function createMockDb() {
   const log = (recallId: string | null, actor: string, action: string, detail: string) =>
     audit.push({ id: audit.length + 1, recallId, actor, action, detail, at: now() });
 
-  const withTarget = (t: ContainmentTask): TaskWithTarget => {
-    const o = org(location(t.locationId).orgId);
-    return { ...t, orgId: o.id, integrationLevel: o.integrationLevel };
-  };
-
-  function coverage(recallId: string): Coverage {
-    const locs = affectedLocations.filter(a => a.recallId === recallId);
-    const verified = locs.filter(a => a.status === 'VERIFIED_CONTAINED');
-    const quarantinedUnits = locs.reduce((s, a) => s + a.quarantinedUnits, 0);
-    const knownUnsoldUnits = locs.reduce(
-      (s, a) => s + Math.max(0, a.expectedUnits - a.soldUnits - a.unaccountedUnits),
-      0,
-    );
-    return {
-      affectedLocations: locs.length,
-      verifiedLocations: verified.length,
-      awaitingLocations: locs.filter(a => a.status === 'AWAITING_ACKNOWLEDGMENT').length,
-      exceptionLocations: locs.length - verified.length - locs.filter(a => a.status === 'AWAITING_ACKNOWLEDGMENT').length,
-      locationCoverage: locs.length ? verified.length / locs.length : 0,
-      quarantinedUnits,
-      knownUnsoldUnits,
-      unitCoverage: knownUnsoldUnits ? quarantinedUnits / knownUnsoldUnits : 0,
-    };
-  }
+  const withTarget = (t: ContainmentTask): TaskWithTarget => targetOf(t, locations, organizations);
 
   /**
    * Expire leases, as check_task_timeouts will. Runs every 5 s and on reads.
@@ -129,13 +107,12 @@ export function createMockDb() {
 
   function status(recallId: string): RecallStatus {
     checkTimeouts();
-    const r = recall(recallId);
-    const locs = affectedLocations.filter(a => a.recallId === recallId);
-    const ts = tasks.filter(t => t.recallId === recallId).map(withTarget);
-    const settled =
-      ts.length > 0 && ts.every(t => t.state === 'VERIFIED' || t.state === 'ESCALATED' || t.integrationLevel === 'MANUAL') &&
-      locs.every(a => a.status !== 'AWAITING_ACKNOWLEDGMENT' || org(location(a.locationId).orgId).integrationLevel === 'MANUAL');
-    return { recall: r, affectedLots: affectedLots.get(recallId) ?? [], affectedLocations: locs, tasks: ts, coverage: coverage(recallId), settled };
+    return recallStatus(
+      recall(recallId),
+      affectedLots.get(recallId) ?? [],
+      affectedLocations.filter(a => a.recallId === recallId),
+      tasks.filter(t => t.recallId === recallId).map(withTarget),
+    );
   }
 
   return {
@@ -149,6 +126,8 @@ export function createMockDb() {
     reportRecallSignal(orgId: string, rootLotId: string, reason: string) {
       requireRole(orgId, 'MANUFACTURER');
       this.getLot(rootLotId);
+      const open = recalls.find(r => r.rootLotId === rootLotId && r.status !== 'CLOSED');
+      if (open) throw new ReducerError('INVALID_STATE', `${open.recallId} is already open for ${rootLotId}`);
       const r: Recall = {
         recallId: `REC-${String(recalls.length + 1).padStart(3, '0')}`,
         rootLotId,
@@ -271,26 +250,9 @@ export function createMockDb() {
 
     getRecallStatus: status,
 
-    getReportFacts(recallId: string): ReportFacts {
-      const s = status(recallId);
-      const locs = s.affectedLocations;
-      return {
-        recallId,
-        rootLotId: s.recall.rootLotId,
-        reason: s.recall.reason,
-        affectedLots: s.affectedLots,
-        coverage: s.coverage,
-        verified: locs.filter(a => a.status === 'VERIFIED_CONTAINED').map(a => ({ locationId: a.locationId, quarantinedUnits: a.quarantinedUnits })),
-        soldBeforeRecall: locs.filter(a => a.soldUnits > 0).map(a => ({ locationId: a.locationId, units: a.soldUnits })),
-        lostInTransit: locs.filter(a => a.lostInTransitUnits > 0).map(a => ({ locationId: a.locationId, units: a.lostInTransitUnits })),
-        unaccounted: locs.filter(a => a.unaccountedUnits > 0).map(a => ({ locationId: a.locationId, units: a.unaccountedUnits })),
-        unknown: locs
-          .filter(a => a.status === 'INVENTORY_UNKNOWN' || a.status === 'AWAITING_ACKNOWLEDGMENT')
-          .map(a => ({ locationId: a.locationId, status: a.status })),
-        escalated: s.tasks.filter(t => t.state === 'ESCALATED').map(t => ({ locationId: t.locationId, taskId: t.taskId, attempts: t.attempts })),
-        generatedAt: now(),
-      };
-    },
+    getReportFacts: (recallId: string): ReportFacts => reportFacts(status(recallId), now()),
+
+    listRecalls: () => [...recalls],
 
     closeRecall(orgId: string, recallId: string, note: string) {
       requireRole(orgId, 'MANUFACTURER');

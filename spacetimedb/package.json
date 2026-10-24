@@ -6,7 +6,7 @@
     "build": "spacetime build",
     "dev": "spacetime publish recallzero --server local --yes",
     "publish:reset": "spacetime publish recallzero --server local --delete-data=always --yes",
-    "generate": "spacetime generate --lang typescript --out-dir ../web/lib/module_bindings --module-path .",
+    "generate": "spacetime generate --lang typescript --out-dir ../web/lib/module_bindings --module-path . && spacetime generate --lang typescript --out-dir ../gateway/src/module_bindings --module-path .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

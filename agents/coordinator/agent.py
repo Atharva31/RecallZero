@@ -8,6 +8,10 @@ Flow for a chat message such as "Start an investigation for contaminated ingredi
 3. QuarantineRequest to each CONNECTED store's retailer agent (MANUAL stores use the store terminal).
 4. Poll GET /recalls/:id/status: re-dispatch tasks the timeout reducer moved to RETRY_PENDING,
    and once settled, reply with a report drafted from GET /recalls/:id/report only.
+
+Recalls started elsewhere (the command center's fallback button calls the gateway directly)
+are adopted on the next poll: any CONTAINING recall this agent has not seen gets its
+CONNECTED stores dispatched, so the fallback runs the same agent flow without ASI:One.
 """
 
 import itertools
@@ -57,6 +61,7 @@ class ActiveRecall:
 
 
 active: dict[str, ActiveRecall] = {}
+seen: set[str] = set()  # recall ids started or adopted by this process; never adopted twice
 
 
 async def say(ctx: Context, to: str | None, text: str, end: bool = False):
@@ -99,12 +104,14 @@ async def start_recall(ctx: Context, sender: str | None, root_lot: str, reason: 
     """Runs signal -> authorize -> trace -> assign, dispatches agents, returns a chat summary."""
     recall = await gw.report_recall_signal(root_lot, reason)
     rid = recall["recallId"]
+    # Register before the recall reaches CONTAINING so poll() never adopts it as a stranger.
+    rec = ActiveRecall(recall_id=rid, reason=reason, chat_sender=sender)
+    active[rid] = rec
+    seen.add(rid)
     await gw.authorize_recall(rid)
     traced = await gw.trace_recall(rid)
     assigned = await gw.assign_containment_tasks(rid)
 
-    rec = ActiveRecall(recall_id=rid, reason=reason, chat_sender=sender)
-    active[rid] = rec
     connected = [t for t in assigned["tasks"] if t["integrationLevel"] == "CONNECTED"]
     manual = [t for t in assigned["tasks"] if t["integrationLevel"] == "MANUAL"]
     for t in connected:
@@ -176,8 +183,34 @@ async def on_result(ctx: Context, sender: str, msg: QuarantineResult):
     await say(ctx, rec.chat_sender, f"{store}: {msg.status}, {msg.quarantined_units} units quarantined{detail}.")
 
 
+async def adopt_new_recalls(ctx: Context):
+    """Take over CONTAINING recalls started outside this agent (e.g. the web fallback button)."""
+    try:
+        recalls = await gw.list_recalls()
+    except GatewayError as e:
+        ctx.logger.warning(f"listing recalls failed: {e}")
+        return
+    for r in recalls:
+        rid = r["recallId"]
+        if r["status"] != "CONTAINING" or rid in seen:
+            continue
+        seen.add(rid)
+        rec = ActiveRecall(recall_id=rid, reason=r["reason"], chat_sender=None)
+        active[rid] = rec
+        status = await gw.recall_status(rid)
+        pending = [
+            t
+            for t in status["tasks"]
+            if t["integrationLevel"] == "CONNECTED" and t["state"] in ("PENDING", "RETRY_PENDING")
+        ]
+        ctx.logger.info(f"adopted {rid} ({r['rootLotId']}, started by {r['createdBy']}); dispatching {len(pending)} agents")
+        for t in pending:
+            await dispatch(ctx, rec, t)
+
+
 @agent.on_interval(period=POLL_INTERVAL_S)
 async def poll(ctx: Context):
+    await adopt_new_recalls(ctx)
     for rid, rec in list(active.items()):
         try:
             status = await gw.recall_status(rid)

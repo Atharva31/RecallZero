@@ -38,6 +38,23 @@ curl -sSf https://install.spacetimedb.com | sh        # SpacetimeDB CLI 2.13 (th
 | Coordinator agent | `cd agents && npm run dev:coordinator` | port 8001, logs its address |
 | Retailer agents | `cd agents && npm run dev:store-a` / `npm run dev:store-b` | ports 8002 / 8003 |
 
+## Real stack (SpacetimeDB behind everything)
+
+```bash
+spacetime start                                                    # terminal 1
+(cd spacetimedb && npm run publish:reset)                          # fresh DB, fixtures loaded by init
+GATEWAY_MODE=spacetimedb npm --prefix gateway run dev              # terminal 2
+echo NEXT_PUBLIC_DATA_SOURCE=spacetimedb > web/.env.local && npm --prefix web run dev   # terminal 3
+(cd agents && npm run dev:coordinator)   # terminal 4; and dev:store-a / dev:store-b
+spacetime call recallzero seed_fixtures --server local             # reset between rehearsals
+```
+
+Who writes what:
+- **Identities:** the gateway holds one SpacetimeDB identity per org (tokens in `gateway/.tokens/`) and binds it with `claim_org_identity`, re-claiming automatically after `seed_fixtures` clears bindings. Reducers check `ctx.sender`, never an org argument.
+- **Web app:** reads SpacetimeDB directly through an anonymous, read-only subscription, and sends every write to the gateway: "Start recall (fallback)" as `ORG-ACME`, POS sales and "Confirm quarantine" as the store's own org. The browser never holds an org identity.
+- **Coordinator:** adopts any `CONTAINING` recall it did not start (`GET /recalls`), so the fallback button still dispatches the retailer agents.
+- **CLI:** the publisher's CLI identity is the admin (`seed_fixtures`). Don't `claim_org_identity` orgs from the CLI while the gateway runs; reseed if you did.
+
 ## Mock flow (works today, no database needed)
 
 ```bash

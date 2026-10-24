@@ -1,7 +1,7 @@
 // The only way UI components read or change data.
-// Today: mock reading fixtures/ (mock-data.ts). Later: SpacetimeDB subscriptions
-// using the generated bindings in lib/module_bindings, behind this same interface,
-// so components do not change. Select with NEXT_PUBLIC_DATA_SOURCE=mock|spacetimedb.
+// mock-data.ts: in-browser mock reading fixtures/. spacetime-data.ts: live SpacetimeDB
+// subscriptions for reads, gateway HTTP for writes. Same interface, so components do
+// not change. Select with NEXT_PUBLIC_DATA_SOURCE=mock|spacetimedb.
 
 import { useSyncExternalStore } from "react";
 
@@ -22,6 +22,7 @@ import type {
   ShipmentLine,
 } from "../../shared/contracts/tables";
 import { createMockDataSource } from "./mock-data";
+import { createSpacetimeDataSource } from "./spacetime-data";
 
 /** Everything the UI renders, in contract (tables.ts) shapes. Treat as immutable. */
 export interface Snapshot {
@@ -59,12 +60,8 @@ let source: DataSource | null = null;
 
 export function getDataSource(): DataSource {
   if (!source) {
-    const kind = process.env.NEXT_PUBLIC_DATA_SOURCE ?? "mock";
-    if (kind !== "mock") {
-      // TODO(Renuka, Sat midday): createSpacetimeDataSource() using lib/module_bindings.
-      console.warn(`NEXT_PUBLIC_DATA_SOURCE=${kind} not implemented yet, using mock`);
-    }
-    source = createMockDataSource();
+    source =
+      process.env.NEXT_PUBLIC_DATA_SOURCE === "spacetimedb" ? createSpacetimeDataSource() : createMockDataSource();
   }
   return source;
 }

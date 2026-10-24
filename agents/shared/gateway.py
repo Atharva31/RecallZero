@@ -45,6 +45,9 @@ class Gateway:
     async def get_lot(self, lot_id: str) -> dict:
         return (await self._call("GET", f"/lots/{lot_id}"))["lot"]
 
+    async def list_recalls(self) -> list[dict]:
+        return (await self._call("GET", "/recalls"))["recalls"]
+
     async def recall_status(self, recall_id: str) -> dict:
         return await self._call("GET", f"/recalls/{recall_id}/status")
 
